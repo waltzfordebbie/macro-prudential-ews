@@ -73,9 +73,9 @@ def fetch_indicators():
 
             if response.status_code == 200:
                 break
-            elif response.status_code == 500:
+            elif response.status_code == 500 or response.status_code == 429:
                 print(
-                    f"⚠️ Server error (500) for {indicator}. Attempt {attempt + 1} of {max_retries}. Retrying in {retry_delay} seconds..."
+                    f"⚠️ Error ({response.status_code}) for {indicator}. Attempt {attempt + 1} of {max_retries}. Retrying in {retry_delay} seconds..."
                 )
                 time.sleep(retry_delay)
                 retry_delay *= 2  # Exponential backoff
