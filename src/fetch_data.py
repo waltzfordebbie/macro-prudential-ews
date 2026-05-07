@@ -7,7 +7,16 @@ from datetime import datetime
 
 load_dotenv()
 API_KEY = os.getenv("FRED_API_KEY")
-indicators = ("WALCL", "SOFR", "RRPONTSYD", "STLFSI4", "T10Y3M")
+indicators = (
+    "WALCL",
+    "SOFR",
+    "RRPONTSYD",
+    "STLFSI4",
+    "T10Y3M",
+    "QUSPAM770A",
+    "CSUSHPINSA",
+    "TDSP",
+)
 all_results = []
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -57,11 +66,25 @@ def fetch_indicators():
             "series_id": indicator,
             "limit": get_smart_limit(),
         }
-        response = requests.get(URL, params=PARAMS)
+        max_retries = 3
+        retry_delay = 2
+        for attempt in range(max_retries):
+            response = requests.get(URL, params=PARAMS)
+
+            if response.status_code == 200:
+                break
+            elif response.status_code == 500:
+                print(
+                    f"⚠️ Server error (500) for {indicator}. Attempt {attempt + 1} of {max_retries}. Retrying in {retry_delay} seconds..."
+                )
+                time.sleep(retry_delay)
+                retry_delay *= 2  # Exponential backoff
+            else:
+                print(
+                    f"❌ Failed to fetch data for {indicator}. Status code: {response.status_code}. Response: {response.text}"
+                )
+                break
         data = response.json()
-        if "observations" not in data:
-            print(f"⚠️ No observations found for {indicator}. Response: {data}")
-            continue
         data["indicator_name"] = indicator
         all_results.append(data)
         print(
