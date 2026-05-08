@@ -1,27 +1,18 @@
 import os
 import requests
-import time
 import sqlite3
-from dotenv import load_dotenv
+import time
 from datetime import datetime
+from dotenv import load_dotenv
+
 
 load_dotenv()
 API_KEY = os.getenv("FRED_API_KEY")
-indicators = (
-    "WALCL",
-    "SOFR",
-    "RRPONTSYD",
-    "STLFSI4",
-    "T10Y3M",
-    "QUSPAM770A",
-    "CSUSHPINSA",
-    "TDSP",
-)
+indicators = ["T10Y3M", "VIXCLS", "BAMLH0A0HYM2", "RRPONTSYD", "DTWEXBGS"]
 all_results = []
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(root, "data", "fred_data.db")
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
 
 def get_smart_limit(db_path=DB_PATH):
