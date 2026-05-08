@@ -1,15 +1,16 @@
 import os
+import pandas as pd
 import sqlite3
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(root, "data", "fred_data.db")
 
 
-def init_db():
+def init_db(db_path=DB_PATH):
     conn = None
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
     try:
-        with sqlite3.connect(DB_PATH) as conn:
+        with sqlite3.connect(db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS observations (
@@ -20,12 +21,12 @@ def init_db():
                     UNIQUE(name, date)
                 )   
             """)
-            print(f"✅ Database initialized at: {DB_PATH}")
+            print(f"✅ Database initialized at: {db_path}")
     except Exception as e:
         print(f"❌ Error initializing database: {e}")
 
 
-def save_data(all_results):
+def save_data(all_results, db_path=DB_PATH):
     rows_to_insert = []
     for json_response in all_results:
         observations_list = json_response.get("observations", [])
@@ -46,7 +47,7 @@ def save_data(all_results):
 
     if rows_to_insert:
         try:
-            with sqlite3.connect(DB_PATH) as conn:
+            with sqlite3.connect(db_path) as conn:
                 cursor = conn.cursor()
                 cursor.executemany(
                     """
@@ -59,6 +60,17 @@ def save_data(all_results):
                 )
         except Exception as e:
             print(f"❌ Error saving data to database: {e}")
+
+
+def db_to_df(db_path=DB_PATH):
+    try:
+        with sqlite3.connect(db_path) as conn:
+            query = "SELECT name, value, date FROM observations"
+            return pd.read_sql_query(query, conn)
+            print("📊 Data loaded into DataFrame for analysis.")
+    except Exception as e:
+        print(f"❌ Error during data loading: {e}")
+        return None
 
 
 if __name__ == "__main__":
