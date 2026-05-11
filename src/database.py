@@ -66,8 +66,8 @@ def db_to_df(db_path=DB_PATH):
     try:
         with sqlite3.connect(db_path) as conn:
             query = "SELECT name, value, date FROM observations"
-            return pd.read_sql_query(query, conn)
             print("📊 Data loaded into DataFrame for analysis.")
+            return pd.read_sql_query(query, conn)
     except Exception as e:
         print(f"❌ Error during data loading: {e}")
         return None
