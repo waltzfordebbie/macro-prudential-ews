@@ -10,7 +10,7 @@ indicators = [
         "url": "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_CREDIT_GAP/1.0/Q.HK.P.A.B",
         "params": {
             "format": "csv",
-            "startPeriod": "2006-Q1",
+            "startPeriod": "1988-Q4",
             "detail": "dataonly",
         },
     },
@@ -20,7 +20,7 @@ indicators = [
         "url": "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_DPP/1.0/M.HK.0.1.0.1.1.0",
         "params": {
             "format": "csv",
-            "startPeriod": "2006-01",
+            "startPeriod": "1993-01",
         },
     },
     {
@@ -28,7 +28,8 @@ indicators = [
         "src": "hkma",
         "url": "https://api.hkma.gov.hk/public/market-data-and-statistics/daily-monetary-statistics/daily-figures-monetary-base",
         "params": {
-            "pagesize": 8000,
+            "pagesize": 1000,
+            "offset": 0,
             "sortby": "end_of_date",
             "sortorder": "desc",
         },
@@ -36,23 +37,29 @@ indicators = [
 ]
 
 
+def fetch_with_retry(url, params, max_retries=3):
+    retry_delay = 2
+    for retry in range(max_retries):
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            return response
+        elif response.status_code in [429, 500, 502, 503, 504]:
+            time.sleep(retry_delay)
+            retry_delay *= 2
+        else:
+            response.raise_for_status()
+    response.raise_for_status()
+
+
 def fetch_data():
     for indicator in indicators:
-        max_retries = 3
-        retry_delay = 2
-        for retry in range(max_retries):
-            response = requests.get(indicator["url"], params=indicator["params"])
-            if response.status_code == 200:
-                break
-            elif response.status_code in [429, 500]:
-                time.sleep(retry_delay)
-                retry_delay *= 2
-            else:
-                raise RuntimeError(f"Could not fetch {indicator['id']}.")
-        if indicator["src"] == "bis":
-            bis_data = response.text
-            bis_results.append(bis_data)
+        if indicator["src"] == "hkma":
+            for page in range(9):
+                indicator["params"]["offset"] = page * 1000
+                response = fetch_with_retry(indicator["url"], indicator["params"])
+                hkma_results.append(response.json())
         else:
-            hkma_data = response.json()
-            hkma_results.append(hkma_data)
-        return bis_results, hkma_results
+            response = fetch_with_retry(indicator["url"], indicator["params"])
+            bis_results.append(response.text)
+
+    return bis_results, hkma_results
