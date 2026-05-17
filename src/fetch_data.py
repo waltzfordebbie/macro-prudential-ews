@@ -54,6 +54,7 @@ def fetch_with_retry(url, params, max_retries=3):
 def fetch_data():
     for indicator in indicators:
         if indicator["src"] == "hkma":
+            # HKMA API returns max 1000 records/page; 9 pages covers ~25 years of daily data
             for page in range(9):
                 indicator["params"]["offset"] = page * 1000
                 response = fetch_with_retry(indicator["url"], indicator["params"])
