@@ -1,0 +1,26 @@
+thresholds:
+  GAP:
+    warn: 2.0
+    critical: 10.0
+  GAP_DELTA:
+    warn: 1.5
+    critical: 3.0
+  INDEX_YOY:
+    warn: 0.10
+    critical: 0.15
+  BALANCE_CROSSOVER:
+    warn: -20.0
+    critical: -50.0
+  BALANCE_FAST:
+    warn: 80.0
+    critical: 60.0
+
+weights:
+  GAP: 3.0
+  INDEX_YOY: 2.5
+  GAP_DELTA: 2.0
+  BALANCE_CROSSOVER: 1.5
+  BALANCE_FAST: 1.0
+
+regime_bins: [0, 20, 45, 70, 100]
+persistence_quarters: 2
