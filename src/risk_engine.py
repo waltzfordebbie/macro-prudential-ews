@@ -102,11 +102,4 @@ def risk_analysis(df_bis_hkcreditgap, df_bis_hkpropindex, df_hkma_hkaggbalance):
         .sort_index(ascending=False)
         .dropna()
     )
-    df_liquidity = pd.DataFrame(
-        {
-            "BALANCE_FAST": df_hkma_hkaggbalance["BALANCE_FAST"],
-            "BALANCE_CROSSOVER": df_hkma_hkaggbalance["BALANCE_CROSSOVER"],
-        },
-        index=df_hkma_hkaggbalance.index,
-    ).dropna()
-    return df_ews, df_liquidity
+    return df_ews
