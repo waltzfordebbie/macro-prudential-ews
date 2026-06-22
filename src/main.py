@@ -13,3 +13,4 @@ df_ews = risk_analysis(df_bis_hkcreditgap, df_bis_hkpropindex, df_hkma_hkaggbala
 
 os.makedirs("output", exist_ok=True)
 df_ews.to_csv("output/ews_scores.csv")
+print("finished: check scores at output/ews_scores.csv")
