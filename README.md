@@ -14,7 +14,7 @@ The model draws on the same conceptual framework used by the BIS, HKMA, and IMF 
 
 ## Signals
 
-The composite EWS score is derived from three indicators:
+The composite EWS score is derived from the following indicators:
 
 | Signal | Source | Method |
 |---|---|---|
